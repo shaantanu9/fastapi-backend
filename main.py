@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException # Import FastAPI and HTTPException
 from fastapi.middleware.cors import CORSMiddleware # Import CORSMiddleware
 # Import StaticFiles is to serve static files (like HTML, CSS, JS) from a directory
 from fastapi.staticfiles import StaticFiles
-
+from enum import Enum # Import Enum is to define an enumeration for the genres of the bands
 
 app = FastAPI() # Create a FastAPI instance this instance will be used to define the API routes and handle requests and responses and middleware
 # Add CORS middleware to allow requests from different origins
@@ -33,8 +33,10 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+# 
+
 band = [
-    {"id": 121, "name": "Band 1", "genre": "Rock"},
+    {"id": 121, "name": "Band 1", "genre": "ROCK"},
     {"id": 2, "name": "Band 2", "genre": "Pop"},
     {"id": 3, "name": "Band 3", "genre": "Jazz"},
     {"id": 4, "name": "Band 4", "genre": "Classical"},
@@ -96,3 +98,43 @@ async def create_band(band_data:dict) -> dict:
     }
     band.append(new_band)
     return new_band
+
+# @app.get("/api/bands/genre/{genre}", response_model=list[dict])
+# async def get_bands_by_genre(genre: GenreChoice) -> list[dict]:
+#     """
+#     Endpoint to get all bands by genre.
+#     """
+#     genre_value = genre.value.lower()
+#     filtered_bands = [
+#         b for b in band if b["genre"].lower() == genre_value
+#     ]
+#     return filtered_bands
+
+
+class GenreChoice(Enum):
+    POP = 'pop'
+    ROCK = 'rock'
+    JAZZ = 'jazz'
+    CLASSICAL = 'classical'
+
+# class GenreChoice(str, Enum):
+#     ROCK = 'rock'
+#     POP = 'pop'
+#     JAZZ = 'jazz'
+#     CLASSICAL = 'classical'
+
+    # @classmethod
+    # def _missing_(cls, value):
+    #     if isinstance(value, str):
+    #         for member in cls:
+    #             if member.value.lower() == value.lower():
+    #                 return member
+    #     return None
+
+@app.get("/api/bands/genre/{genre}", response_model=list[dict])
+async def get_bands_by_genre(genre: GenreChoice) -> list[dict]:
+    genre_value = genre.value.lower()
+    filtered_bands = [
+        b for b in band if b["genre"].lower() == genre_value
+    ]
+    return filtered_bands
