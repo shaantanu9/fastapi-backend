@@ -1,10 +1,11 @@
 
 # Import FastAPI reason to use this import is to create a FastAPI instance
-from fastapi import FastAPI 
+from fastapi import FastAPI, HTTPException # Import FastAPI and HTTPException
 # Import middleware CorsMiddleware is to handle CORS (Cross-Origin Resource Sharing) and allow requests from different origins
 from fastapi.middleware.cors import CORSMiddleware # Import CORSMiddleware
 # Import StaticFiles is to serve static files (like HTML, CSS, JS) from a directory
 from fastapi.staticfiles import StaticFiles
+
 
 app = FastAPI() # Create a FastAPI instance this instance will be used to define the API routes and handle requests and responses and middleware
 # Add CORS middleware to allow requests from different origins
@@ -32,13 +33,66 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+band = [
+    {"id": 121, "name": "Band 1", "genre": "Rock"},
+    {"id": 2, "name": "Band 2", "genre": "Pop"},
+    {"id": 3, "name": "Band 3", "genre": "Jazz"},
+    {"id": 4, "name": "Band 4", "genre": "Classical"},
+    {"id": 5, "name": "Band 5", "genre": "Hip Hop"},
+    {"id": 6, "name": "Band 6", "genre": "Country"},
+    {"id": 7, "name": "Band 7", "genre": "Reggae"},
+    {"id": 8, "name": "Band 8", "genre": "Blues"},
+    {"id": 9, "name": "Band 9", "genre": "Metal"},
+    {"id": 10, "name": "Band 10", "genre": "Folk"},
+    {"id": 11, "name": "Band 11", "genre": "Electronic"},
+    {"id": 12, "name": "Band 12", "genre": "Indie"},
+    {"id": 13, "name": "Band 13", "genre": "Punk"},
+    {"id": 14, "name": "Band 14", "genre": "Alternative"},
+    {"id": 15, "name": "Band 15", "genre": "R&B"},
+]
 
 # Simple Health Check Endpoint
-@app.get("/")
-async def root()-> dict[str,str]: # Define a root endpoint that returns a simple message:
-    return {"message": "Hello World!"}
-# Serve static files from the "frontend" directory
-
-@app.get("/api")
+@app.get("/api", tags=["Health Check"], summary="Health Check", status_code=200, description="This is a simple health check endpoint to check if the API is running")
 async def api() -> str:
-    return "Hello from the API!"
+    return "Hello from the API!, this is a simple health check endpoint to check if the API is running"
+
+# Endpoint to get all bands
+@app.get("/api/bands")
+async def get_bands() -> list[dict]:
+    """
+    Endpoint to get all bands 22
+    """
+    return band
+
+# Endpoint to get a band by ID
+@app.get("/api/bands/{band_id}")
+async def get_band(band_id: int) -> dict:
+    """
+    Endpoint to get a band by ID
+    """
+    for b in band:
+        if b["id"] == band_id:
+            return b
+    return {"error": "Band not found"}
+
+# Endpoint to create a new band
+@app.post("/api/bands/create")
+async def create_band(band_data:dict) -> dict:
+    """
+    Endpoint to crate a new band in the database
+    """
+
+    breakpoint = band_data["name"].index(" ")
+    print(breakpoint)
+    # Before creating need to check if the bank already exists
+    for b in band:
+        if b["name"] == band_data["name"]: # use of breakpoint is 
+            raise HTTPException(status_code=404, detail="Band already exists")
+    # If the band does not exist, create a new band
+    new_band = {
+        "id": len(band) + 1,
+        "name": band_data["name"],
+        "genre": band_data["genre"]
+    }
+    band.append(new_band)
+    return new_band

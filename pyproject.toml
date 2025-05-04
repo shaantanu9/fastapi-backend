@@ -7,3 +7,16 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.115.12",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11.8",
+]
+
+[tool.ruff]
+line-length = 88 # Set the maximum line length to 88 characters
+extend-ignore = [
+    "E501", # Ignore line length errors
+]
+target-version = "py312" # Set the target Python version to 3.12
+
